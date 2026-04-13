@@ -89,7 +89,7 @@ export const SliderThumbStyled = styled.div<SliderThumbOwnerState>(
       justifyContent: 'center',
       top: ownerOrientation === 'horizontal' ? '50%' : undefined,
       left: ownerOrientation === 'horizontal' ? undefined : '50%',
-      transform: 'translate(-50%, -50%)',
+      transform: ownerOrientation === 'horizontal' ? 'translate(-50%, -50%)' : 'translate(-50%, 50%)',
       transition: ownerActive ? 'none' : 'box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
       outline: 0,
       '&:hover': {
