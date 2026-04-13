@@ -2,6 +2,7 @@ import type { CSSObject } from '@emotion/react';
 import { useTheme } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ThemeSchema } from '@thanh-libs/theme';
+import { alpha } from '@thanh-libs/utils';
 import type { SliderOrientation } from '../models';
 
 export interface SliderOwnerState {
@@ -37,9 +38,11 @@ export const SliderRailStyled = styled.div<SliderOwnerState>(
       borderRadius: shape?.borderRadius || '4px',
       width: ownerOrientation === 'horizontal' ? '100%' : '4px',
       height: ownerOrientation === 'horizontal' ? '4px' : '100%',
-      top: ownerOrientation === 'horizontal' ? '50%' : 0,
-      left: ownerOrientation === 'horizontal' ? 0 : '50%',
-      transform: ownerOrientation === 'horizontal' ? 'translateY(-50%)' : 'translateX(-50%)',
+      top: ownerOrientation === 'horizontal' ? 0 : 0,
+      bottom: ownerOrientation === 'horizontal' ? 0 : undefined,
+      left: ownerOrientation === 'horizontal' ? 0 : 0,
+      right: ownerOrientation === 'horizontal' ? undefined : 0,
+      margin: ownerOrientation === 'horizontal' ? 'auto 0' : '0 auto',
     };
   }
 );
@@ -53,9 +56,11 @@ export const SliderTrackStyled = styled.div<SliderOwnerState>(
       borderRadius: shape?.borderRadius || '4px',
       height: ownerOrientation === 'horizontal' ? '4px' : undefined,
       width: ownerOrientation === 'horizontal' ? undefined : '4px',
-      top: ownerOrientation === 'horizontal' ? '50%' : undefined,
-      left: ownerOrientation === 'horizontal' ? undefined : '50%',
-      transform: ownerOrientation === 'horizontal' ? 'translateY(-50%)' : 'translateX(-50%)',
+      top: ownerOrientation === 'horizontal' ? 0 : undefined,
+      bottom: ownerOrientation === 'horizontal' ? 0 : undefined,
+      left: ownerOrientation === 'horizontal' ? undefined : 0,
+      right: ownerOrientation === 'horizontal' ? undefined : 0,
+      margin: ownerOrientation === 'horizontal' ? 'auto 0' : '0 auto',
     };
   }
 );
@@ -67,6 +72,11 @@ export interface SliderThumbOwnerState extends SliderOwnerState {
 export const SliderThumbStyled = styled.div<SliderThumbOwnerState>(
   ({ ownerOrientation = 'horizontal', ownerActive, ownerDisabled }): CSSObject => {
     const { palette, shape }: ThemeSchema = useTheme();
+    
+    // Compute an extremely light transparent color for the hover ring
+    const hoverBgColor = alpha(palette?.primary?.main || '#1976d2', 0.1);
+    const activeBgColor = alpha(palette?.primary?.main || '#1976d2', 0.15);
+
     return {
       position: 'absolute',
       width: '20px',
@@ -83,13 +93,13 @@ export const SliderThumbStyled = styled.div<SliderThumbOwnerState>(
       transition: ownerActive ? 'none' : 'box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
       outline: 0,
       '&:hover': {
-        boxShadow: ownerDisabled ? 'none' : `0px 0px 0px 8px ${palette?.primary?.light || 'rgba(25, 118, 210, 0.16)'}`,
+        boxShadow: ownerDisabled ? 'none' : `0px 0px 0px 6px ${hoverBgColor}`,
       },
       ...(ownerActive && !ownerDisabled && {
-        boxShadow: `0px 0px 0px 14px ${palette?.primary?.light || 'rgba(25, 118, 210, 0.16)'}`,
+        boxShadow: `0px 0px 0px 9px ${activeBgColor}`,
       }),
       '&:focus-visible': {
-        boxShadow: `0px 0px 0px 14px ${palette?.primary?.light || 'rgba(25, 118, 210, 0.16)'}`,
+        boxShadow: `0px 0px 0px 9px ${hoverBgColor}`,
       }
     };
   }

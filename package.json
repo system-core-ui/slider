@@ -34,7 +34,8 @@
     "react-dom": ">=18",
     "@emotion/react": ">=11",
     "@emotion/styled": ">=11",
-    "@thanh-libs/theme": "*"
+    "@thanh-libs/theme": "*",
+    "@thanh-libs/utils": "*"
   },
   "devDependencies": {
     "@emotion/react": "^11.14.0",
@@ -42,6 +43,7 @@
     "@testing-library/jest-dom": "^6.9.0",
     "@testing-library/react": "^16.3.0",
     "@thanh-libs/theme": "*",
+    "@thanh-libs/utils": "*",
     "@vitejs/plugin-react": "^4.2.0",
     "jsdom": "~22.1.0",
     "react": "^19.2.0",

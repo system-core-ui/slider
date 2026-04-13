@@ -63,6 +63,9 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
       if (disabled) return;
       e.preventDefault();
       containerRef.current?.focus();
+      if (containerRef.current && e.pointerId !== undefined) {
+        containerRef.current.setPointerCapture(e.pointerId);
+      }
 
       const pointerValue = getValueFromPointer(e);
 
@@ -79,9 +82,6 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
         setActiveThumb(activeIdx);
         const newValue = [...(value as number[])];
         newValue[activeIdx] = pointerValue;
-        if (newValue[0] > newValue[1]) {
-          // swap logic if needed, but standard slider might just push
-        }
         handleValueChange(newValue);
       } else {
         setActiveThumb(0);
@@ -89,7 +89,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
       }
     };
 
-    const handlePointerMove = useCallback((e: PointerEvent) => {
+    const handlePointerMove = useCallback((e: React.PointerEvent) => {
       if (disabled || activeThumb === null) return;
       
       const pointerValue = getValueFromPointer(e);
@@ -109,20 +109,14 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
       }
     }, [disabled, activeThumb, getValueFromPointer, isRange, value, min, max, handleValueChange]);
 
-    const handlePointerUp = useCallback(() => {
+    const handlePointerUp = useCallback((e: React.PointerEvent) => {
       setActiveThumb(null);
-    }, []);
-
-    useEffect(() => {
-      if (activeThumb !== null) {
-        window.addEventListener('pointermove', handlePointerMove);
-        window.addEventListener('pointerup', handlePointerUp);
-        return () => {
-          window.removeEventListener('pointermove', handlePointerMove);
-          window.removeEventListener('pointerup', handlePointerUp);
-        };
+      if (containerRef.current && e.pointerId !== undefined) {
+        try {
+          containerRef.current.releasePointerCapture(e.pointerId);
+        } catch (err) {}
       }
-    }, [activeThumb, handlePointerMove, handlePointerUp]);
+    }, []);
 
     const getPercent = (val: number) => ((val - min) / (max - min)) * 100;
 
@@ -216,6 +210,9 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
         ownerOrientation={orientation}
         ownerDisabled={disabled}
         onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         {...rest}
       >
         <SliderRailStyled ownerOrientation={orientation} />
