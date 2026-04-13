@@ -97,8 +97,21 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
       if (isRange) {
         const newValue = [...(value as number[])];
         newValue[activeThumb] = pointerValue;
-        
-        if (activeThumb === 0) {
+        let currentActive = activeThumb;
+
+        // Automatically swap active thumb if they are exactly overlapping
+        // and the user attempts to drag outward.
+        if (newValue[0] === newValue[1]) {
+          if (currentActive === 0 && pointerValue > newValue[1]) {
+            currentActive = 1;
+            setActiveThumb(1);
+          } else if (currentActive === 1 && pointerValue < newValue[0]) {
+            currentActive = 0;
+            setActiveThumb(0);
+          }
+        }
+
+        if (currentActive === 0) {
           newValue[0] = clamp(pointerValue, min, newValue[1]);
         } else {
           newValue[1] = clamp(pointerValue, newValue[0], max);
