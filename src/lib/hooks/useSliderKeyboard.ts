@@ -1,16 +1,14 @@
 import { clamp } from '../helpers';
+import type { SliderBaseProps } from '../models';
 
-export interface SliderKeyboardActionOptions {
+export type UseSliderKeyboardOptions = Required<Pick<SliderBaseProps, 'min' | 'max' | 'step'>> &
+  Pick<SliderBaseProps, 'disabled'>;
+
+export type SliderKeyboardActionOptions = Pick<UseSliderKeyboardOptions, 'min' | 'max' | 'step'> & {
   val: number;
-  step: number;
-  min: number;
-  max: number;
-}
+};
 
-const KEY_ACTIONS: Record<
-  string,
-  (options: SliderKeyboardActionOptions) => number
-> = {
+const KEY_ACTIONS: Record<string, (options: SliderKeyboardActionOptions) => number> = {
   ArrowLeft: ({ val, step, min, max }) => clamp(val - step, min, max),
   ArrowDown: ({ val, step, min, max }) => clamp(val - step, min, max),
   ArrowRight: ({ val, step, min, max }) => clamp(val + step, min, max),
@@ -19,24 +17,8 @@ const KEY_ACTIONS: Record<
   End: ({ max }) => max,
 };
 
-interface UseSliderKeyboardOptions {
-  min: number;
-  max: number;
-  step: number;
-  disabled?: boolean;
-}
-
-export function useSliderKeyboard({
-  min,
-  max,
-  step,
-  disabled,
-}: UseSliderKeyboardOptions) {
-  return (
-    e: React.KeyboardEvent,
-    currentValue: number,
-    onValueChange: (newValue: number) => void,
-  ) => {
+export function useSliderKeyboard({ min, max, step, disabled }: UseSliderKeyboardOptions) {
+  return (e: React.KeyboardEvent, currentValue: number, onValueChange: (newValue: number) => void) => {
     if (disabled) return;
 
     const action = KEY_ACTIONS[e.key];
