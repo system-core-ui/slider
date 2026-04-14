@@ -268,7 +268,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
         ref={(node) => {
           if (typeof ref === 'function') ref(node);
           else if (ref) ref.current = node;
-          // @ts-ignore
+          // @ts-expect-error
           containerRef.current = node;
         }}
         ownerOrientation={orientation}
