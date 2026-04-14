@@ -138,29 +138,29 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
       if (disabled || !value) return;
 
       const currentValue = value[index];
-      let newValueStr = currentValue;
 
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
-        e.preventDefault();
-        newValueStr = clamp(currentValue - step, min, max);
-      } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        newValueStr = clamp(currentValue + step, min, max);
-      } else if (e.key === 'Home') {
-        e.preventDefault();
-        newValueStr = min;
-      } else if (e.key === 'End') {
-        e.preventDefault();
-        newValueStr = max;
-      }
+      const actionMap: Record<string, () => number> = {
+        ArrowLeft: () => clamp(currentValue - step, min, max),
+        ArrowDown: () => clamp(currentValue - step, min, max),
+        ArrowRight: () => clamp(currentValue + step, min, max),
+        ArrowUp: () => clamp(currentValue + step, min, max),
+        Home: () => min,
+        End: () => max,
+      };
 
-      if (newValueStr !== currentValue) {
-        const newArray: [number, number] = [...value] as [number, number];
-        newArray[index] = newValueStr;
-        if (newArray[0] > newArray[1]) {
-          newArray[index] = index === 0 ? newArray[1] : newArray[0];
+      const action = actionMap[e.key];
+      if (action) {
+        e.preventDefault();
+        const newValueStr = action();
+
+        if (newValueStr !== currentValue) {
+          const newArray: [number, number] = [...value] as [number, number];
+          newArray[index] = newValueStr;
+          if (newArray[0] > newArray[1]) {
+            newArray[index] = index === 0 ? newArray[1] : newArray[0];
+          }
+          handleValueChange(newArray);
         }
-        handleValueChange(newArray);
       }
     };
 

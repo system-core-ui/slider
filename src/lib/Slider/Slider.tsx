@@ -106,25 +106,20 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
     const handleKeyDown = (e: React.KeyboardEvent) => {
       if (disabled || value === undefined) return;
 
-      const currentValue = value;
-      let newValue = currentValue;
+      const actionMap: Record<string, () => number> = {
+        ArrowLeft: () => clamp(value - step, min, max),
+        ArrowDown: () => clamp(value - step, min, max),
+        ArrowRight: () => clamp(value + step, min, max),
+        ArrowUp: () => clamp(value + step, min, max),
+        Home: () => min,
+        End: () => max,
+      };
 
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+      const action = actionMap[e.key];
+      if (action) {
         e.preventDefault();
-        newValue = clamp(currentValue - step, min, max);
-      } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        newValue = clamp(currentValue + step, min, max);
-      } else if (e.key === 'Home') {
-        e.preventDefault();
-        newValue = min;
-      } else if (e.key === 'End') {
-        e.preventDefault();
-        newValue = max;
-      }
-
-      if (newValue !== currentValue) {
-        handleValueChange(newValue);
+        const newValue = action();
+        if (newValue !== value) handleValueChange(newValue);
       }
     };
 
