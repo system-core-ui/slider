@@ -98,7 +98,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
     };
 
     const renderThumb = (val: number) => {
-      const percent = getPercent(val, min, max);
+      const percent = getPercent({ val, min, max });
       const style =
         orientation === 'horizontal'
           ? { left: `${percent}%` }
@@ -126,7 +126,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
       );
     };
 
-    const p = getPercent(value as number, min, max);
+    const p = getPercent({ val: value as number, min, max });
     let trackStyle = {};
     if (orientation === 'horizontal') {
       trackStyle = { left: '0%', width: `${p}%` };

@@ -35,7 +35,7 @@ export function useSliderPointerValue({
 
       const exactValue = percent * (max - min) + min;
       const steppedValue = Math.round((exactValue - min) / step) * step + min;
-      return clamp(steppedValue, min, max);
+      return clamp({ val: steppedValue, min, max });
     },
     [containerRef, min, max, step, orientation],
   );
