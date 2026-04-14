@@ -31,6 +31,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
     },
     ref,
   ) => {
+    const isHorizontal = orientation === 'horizontal';
     const isControlled = valueProp !== undefined;
     const [internalValue, setInternalValue] = useState<number>(
       defaultValue !== undefined ? defaultValue : valueProp !== undefined ? valueProp : min
@@ -100,7 +101,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
     const renderThumb = (val: number) => {
       const percent = getPercent({ val, min, max });
       const style =
-        orientation === 'horizontal'
+        isHorizontal
           ? { left: `${percent}%` }
           : { bottom: `${percent}%` };
 
@@ -128,7 +129,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
 
     const p = getPercent({ val: value as number, min, max });
     let trackStyle = {};
-    if (orientation === 'horizontal') {
+    if (isHorizontal) {
       trackStyle = { left: '0%', width: `${p}%` };
     } else {
       trackStyle = { bottom: '0%', height: `${p}%` };

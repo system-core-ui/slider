@@ -33,6 +33,7 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
     },
     ref,
   ) => {
+    const isHorizontal = orientation === 'horizontal';
     const isControlled = valueProp !== undefined;
     const [internalValue, setInternalValue] = useState<[number, number]>(
       defaultValue !== undefined
@@ -152,7 +153,7 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
     const renderThumb = (val: number, index: number) => {
       const percent = getPercent({ val, min, max });
       const style =
-        orientation === 'horizontal'
+        isHorizontal
           ? { left: `${percent}%` }
           : { bottom: `${percent}%` };
 
@@ -191,7 +192,7 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
       const p0 = getPercent({ val: val0, min, max });
       const p1 = getPercent({ val: val1, min, max });
       trackStyle =
-        orientation === 'horizontal'
+        isHorizontal
           ? { left: `${p0}%`, width: `${p1 - p0}%` }
           : { bottom: `${p0}%`, height: `${p1 - p0}%` };
     }

@@ -27,7 +27,9 @@ export function useSliderPointerValue({
       const clientX = e.clientX || 0;
       const clientY = e.clientY || 0;
 
-      if (orientation === 'horizontal') {
+      const isHorizontal = orientation === 'horizontal';
+
+      if (isHorizontal) {
         percent = (clientX - rect.left) / (rect.width || 1);
       } else {
         percent = (rect.bottom - clientY) / (rect.height || 1);
