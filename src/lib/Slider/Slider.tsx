@@ -1,5 +1,6 @@
 import React, { forwardRef, useCallback, useRef, useState } from 'react';
 
+import { clamp } from '../helpers';
 import type { SliderProps } from '../models';
 
 import {
@@ -9,8 +10,6 @@ import {
   SliderTrackStyled,
 } from './styled';
 
-const clamp = (val: number, min: number, max: number) =>
-  Math.min(Math.max(val, min), max);
 
 export const Slider = forwardRef<HTMLDivElement, SliderProps>(
   (
