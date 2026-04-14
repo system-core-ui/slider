@@ -5,33 +5,12 @@ import { ThemeSchema } from '@thanh-libs/theme';
 import { alpha } from '@thanh-libs/utils';
 
 import type { SliderOrientation } from '../models';
+import { AXIS_STYLES, AXIS_THICKNESS, ROOT_STYLES } from '../constants';
 
 export interface SliderOwnerState {
   ownerOrientation?: SliderOrientation;
   ownerDisabled?: boolean;
 }
-
-const AXIS_THICKNESS = '4px';
-
-const AXIS_STYLES: Record<SliderOrientation, CSSObject> = {
-  horizontal: {
-    height: AXIS_THICKNESS,
-    top: 0,
-    bottom: 0,
-    margin: 'auto 0',
-  },
-  vertical: {
-    width: AXIS_THICKNESS,
-    left: 0,
-    right: 0,
-    margin: '0 auto',
-  },
-};
-
-const ROOT_STYLES: Record<SliderOrientation, CSSObject> = {
-  horizontal: { width: '100%', height: '12px', padding: '12px 0' },
-  vertical: { width: '12px', height: '100%', padding: '0 12px' },
-};
 
 export const SliderRootStyled = styled.div<SliderOwnerState>(
   ({ ownerOrientation = 'horizontal', ownerDisabled }): CSSObject => {
