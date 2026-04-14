@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { Slider } from '../Slider/Slider';
+import { SliderRange } from '../Slider/SliderRange';
 import { ThemeProvider } from '@thanh-libs/theme';
 
 // ─── Basic ───────────────────────────────────────────────
@@ -12,7 +13,7 @@ const BasicStory = () => (
 // ─── Range ───────────────────────────────────────────────
 
 const RangeStory = () => (
-  <Slider defaultValue={[20, 50]} />
+  <SliderRange defaultValue={[20, 50]} />
 );
 
 // ─── Disabled ────────────────────────────────────────────
@@ -25,7 +26,7 @@ const DisabledStory = () => (
     </div>
     <div>
       <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Range disabled</div>
-      <Slider defaultValue={[20, 60]} disabled />
+      <SliderRange defaultValue={[20, 60]} disabled />
     </div>
   </div>
 );
@@ -40,7 +41,7 @@ const VerticalStory = () => (
     </div>
     <div style={{ height: 200 }}>
       <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Range</div>
-      <Slider defaultValue={[10, 80]} orientation="vertical" />
+      <SliderRange defaultValue={[10, 80]} orientation="vertical" />
     </div>
   </div>
 );
@@ -48,20 +49,29 @@ const VerticalStory = () => (
 // ─── Controlled ──────────────────────────────────────────
 
 const ControlledStory = () => {
-  const [value, setValue] = useState<number | number[]>(50);
+  const [value, setValue] = useState<number>(50);
+  const [rangeValue, setRangeValue] = useState<[number, number]>([20, 80]);
   return (
-    <>
-      <Slider value={value} onChange={setValue} />
-      <div style={{ marginTop: 20, fontSize: 14, color: '#666' }}>Value: {JSON.stringify(value)}</div>
-    </>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+      <div>
+        <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Single Controlled</div>
+        <Slider value={value} onChange={setValue} />
+        <div style={{ marginTop: 8, fontSize: 13, color: '#666' }}>Value: {JSON.stringify(value)}</div>
+      </div>
+      <div>
+        <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Range Controlled</div>
+        <SliderRange value={rangeValue} onChange={setRangeValue} />
+        <div style={{ marginTop: 8, fontSize: 13, color: '#666' }}>Value: {JSON.stringify(rangeValue)}</div>
+      </div>
+    </div>
   );
 };
 
 // ─── Custom Step ─────────────────────────────────────────
 
 const CustomStepStory = () => {
-  const [val1, setVal1] = useState<number | number[]>(20);
-  const [val2, setVal2] = useState<number | number[]>(50);
+  const [val1, setVal1] = useState<number>(20);
+  const [val2, setVal2] = useState<number>(50);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
       <div>
@@ -79,8 +89,8 @@ const CustomStepStory = () => {
 // ─── Custom Min/Max ──────────────────────────────────────
 
 const CustomRangeStory = () => {
-  const [temp, setTemp] = useState<number | number[]>(22);
-  const [year, setYear] = useState<number | number[]>(2020);
+  const [temp, setTemp] = useState<number>(22);
+  const [year, setYear] = useState<number>(2020);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
       <div>

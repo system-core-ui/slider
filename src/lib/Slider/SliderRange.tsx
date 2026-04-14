@@ -1,7 +1,7 @@
 import React, { forwardRef, useCallback, useRef, useState } from 'react';
 
 import { clamp } from '../helpers';
-import type { SliderProps } from '../models';
+import type { SliderRangeProps } from '../models';
 
 import {
   SliderRailStyled,
@@ -10,7 +10,7 @@ import {
   SliderTrackStyled,
 } from './styled';
 
-export const Slider = forwardRef<HTMLDivElement, SliderProps>(
+export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
   (
     {
       value: valueProp,
@@ -29,18 +29,18 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
     ref,
   ) => {
     const isControlled = valueProp !== undefined;
-    const [internalValue, setInternalValue] = useState<number>(
-      defaultValue !== undefined ? defaultValue : valueProp !== undefined ? valueProp : min
+    const [internalValue, setInternalValue] = useState<[number, number]>(
+      defaultValue !== undefined ? defaultValue : valueProp !== undefined ? valueProp : [min, max]
     );
 
     const value = isControlled ? valueProp : internalValue;
 
     const [activeThumb, setActiveThumb] = useState<number | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const thumbRef = useRef<HTMLDivElement | null>(null);
+    const thumbRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     const handleValueChange = useCallback(
-      (newValue: number) => {
+      (newValue: [number, number]) => {
         if (!isControlled) {
           setInternalValue(newValue);
         }
@@ -72,26 +72,57 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
     );
 
     const handlePointerDown = (e: React.PointerEvent) => {
-      if (disabled) return;
+      if (disabled || !value) return;
       e.preventDefault();
       if (containerRef.current && e.pointerId !== undefined) {
         containerRef.current.setPointerCapture(e.pointerId);
       }
 
       const pointerValue = getValueFromPointer(e);
+      const [val0, val1] = value;
+      const dist0 = Math.abs(val0 - pointerValue);
+      const dist1 = Math.abs(val1 - pointerValue);
 
-      setActiveThumb(0);
-      handleValueChange(pointerValue);
-      thumbRef.current?.focus();
+      let activeIdx = 0;
+      if (dist0 > dist1 || (dist0 === dist1 && pointerValue > val1)) {
+        activeIdx = 1;
+      }
+
+      setActiveThumb(activeIdx);
+      const newValue: [number, number] = [...value] as [number, number];
+      newValue[activeIdx] = pointerValue;
+      handleValueChange(newValue);
+      thumbRefs.current[activeIdx]?.focus();
     };
 
     const handlePointerMove = useCallback(
       (e: React.PointerEvent) => {
-        if (disabled || activeThumb === null) return;
+        if (disabled || activeThumb === null || !value) return;
+
         const pointerValue = getValueFromPointer(e);
-        handleValueChange(pointerValue);
+        const newValue: [number, number] = [...value] as [number, number];
+        
+        let currentActive = activeThumb;
+
+        if (newValue[0] === newValue[1]) {
+          if (currentActive === 0 && pointerValue > newValue[1]) {
+            currentActive = 1;
+            setActiveThumb(1);
+          } else if (currentActive === 1 && pointerValue < newValue[0]) {
+            currentActive = 0;
+            setActiveThumb(0);
+          }
+        }
+
+        if (currentActive === 0) {
+          newValue[0] = clamp(pointerValue, min, newValue[1]);
+        } else {
+          newValue[1] = clamp(pointerValue, newValue[0], max);
+        }
+        
+        handleValueChange(newValue);
       },
-      [disabled, activeThumb, getValueFromPointer, handleValueChange],
+      [disabled, activeThumb, getValueFromPointer, value, min, max, handleValueChange],
     );
 
     const handlePointerUp = useCallback((e: React.PointerEvent) => {
@@ -103,32 +134,37 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
 
     const getPercent = (val: number) => ((val - min) / (max - min)) * 100;
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (disabled || value === undefined) return;
+    const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+      if (disabled || !value) return;
 
-      const currentValue = value;
-      let newValue = currentValue;
+      const currentValue = value[index];
+      let newValueStr = currentValue;
 
       if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
         e.preventDefault();
-        newValue = clamp(currentValue - step, min, max);
+        newValueStr = clamp(currentValue - step, min, max);
       } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
         e.preventDefault();
-        newValue = clamp(currentValue + step, min, max);
+        newValueStr = clamp(currentValue + step, min, max);
       } else if (e.key === 'Home') {
         e.preventDefault();
-        newValue = min;
+        newValueStr = min;
       } else if (e.key === 'End') {
         e.preventDefault();
-        newValue = max;
+        newValueStr = max;
       }
 
-      if (newValue !== currentValue) {
-        handleValueChange(newValue);
+      if (newValueStr !== currentValue) {
+        const newArray: [number, number] = [...value] as [number, number];
+        newArray[index] = newValueStr;
+        if (newArray[0] > newArray[1]) {
+          newArray[index] = index === 0 ? newArray[1] : newArray[0];
+        }
+        handleValueChange(newArray);
       }
     };
 
-    const renderThumb = (val: number) => {
+    const renderThumb = (val: number, index: number) => {
       const percent = getPercent(val);
       const style =
         orientation === 'horizontal'
@@ -137,9 +173,12 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
 
       return (
         <SliderThumbStyled
-          ref={thumbRef}
+          key={index}
+          ref={(node) => {
+            thumbRefs.current[index] = node;
+          }}
           ownerOrientation={orientation}
-          ownerActive={activeThumb === 0}
+          ownerActive={activeThumb === index}
           ownerDisabled={disabled}
           style={style}
           role="slider"
@@ -147,22 +186,26 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
           aria-valuemin={min}
           aria-valuemax={max}
           aria-valuenow={val}
-          aria-label={ariaLabel}
+          aria-label={ariaLabel ? `${ariaLabel} ${index === 0 ? 'min' : 'max'}` : undefined}
           aria-labelledby={ariaLabelledby}
           aria-valuetext={ariaValuetext}
           aria-disabled={disabled}
           tabIndex={disabled ? undefined : 0}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => handleKeyDown(e, index)}
         />
       );
     };
 
-    const p = getPercent(value as number);
     let trackStyle = {};
-    if (orientation === 'horizontal') {
-      trackStyle = { left: '0%', width: `${p}%` };
-    } else {
-      trackStyle = { bottom: '0%', height: `${p}%` };
+    if (value) {
+      const [val0, val1] = value;
+      const p0 = getPercent(val0);
+      const p1 = getPercent(val1);
+      if (orientation === 'horizontal') {
+        trackStyle = { left: `${p0}%`, width: `${p1 - p0}%` };
+      } else {
+        trackStyle = { bottom: `${p0}%`, height: `${p1 - p0}%` };
+      }
     }
 
     return (
@@ -182,10 +225,15 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
       >
         <SliderRailStyled ownerOrientation={orientation} />
         <SliderTrackStyled ownerOrientation={orientation} style={trackStyle} />
-        {value !== undefined && renderThumb(value)}
+        {value && (
+          <>
+            {renderThumb(value[0], 0)}
+            {renderThumb(value[1], 1)}
+          </>
+        )}
       </SliderRootStyled>
     );
   },
 );
 
-Slider.displayName = 'Slider';
+SliderRange.displayName = 'SliderRange';
