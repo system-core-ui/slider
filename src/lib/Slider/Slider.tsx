@@ -55,8 +55,8 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
         const rect = containerRef.current.getBoundingClientRect();
         let percent = 0;
 
-        const clientX = (e as any).clientX || 0;
-        const clientY = (e as any).clientY || 0;
+        const clientX = e.clientX || 0;
+        const clientY = e.clientY || 0;
 
         if (orientation === 'horizontal') {
           percent = (clientX - rect.left) / (rect.width || 1);
