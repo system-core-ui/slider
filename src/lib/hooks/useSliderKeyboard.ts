@@ -35,7 +35,7 @@ export function useSliderKeyboard({
   return (
     e: React.KeyboardEvent,
     currentValue: number,
-    onValueChange: (newValue: number) => void
+    onValueChange: (newValue: number) => void,
   ) => {
     if (disabled) return;
 
