@@ -18,14 +18,30 @@ const RangeStory = () => (
 // ─── Disabled ────────────────────────────────────────────
 
 const DisabledStory = () => (
-  <Slider defaultValue={40} disabled />
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div>
+      <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Single disabled</div>
+      <Slider defaultValue={40} disabled />
+    </div>
+    <div>
+      <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Range disabled</div>
+      <Slider defaultValue={[20, 60]} disabled />
+    </div>
+  </div>
 );
 
 // ─── Vertical ────────────────────────────────────────────
 
 const VerticalStory = () => (
-  <div style={{ height: 200 }}>
-    <Slider defaultValue={[10, 80]} orientation="vertical" />
+  <div style={{ display: 'flex', gap: 48 }}>
+    <div style={{ height: 200 }}>
+      <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Single</div>
+      <Slider defaultValue={50} orientation="vertical" />
+    </div>
+    <div style={{ height: 200 }}>
+      <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Range</div>
+      <Slider defaultValue={[10, 80]} orientation="vertical" />
+    </div>
   </div>
 );
 
@@ -36,8 +52,50 @@ const ControlledStory = () => {
   return (
     <>
       <Slider value={value} onChange={setValue} />
-      <div style={{ marginTop: 20 }}>Value: {JSON.stringify(value)}</div>
+      <div style={{ marginTop: 20, fontSize: 14, color: '#666' }}>Value: {JSON.stringify(value)}</div>
     </>
+  );
+};
+
+// ─── Custom Step ─────────────────────────────────────────
+
+const CustomStepStory = () => {
+  const [val1, setVal1] = useState<number | number[]>(20);
+  const [val2, setVal2] = useState<number | number[]>(50);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+      <div>
+        <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Step = 10 → Value: {JSON.stringify(val1)}</div>
+        <Slider defaultValue={20} step={10} value={val1} onChange={setVal1} />
+      </div>
+      <div>
+        <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Step = 25 → Value: {JSON.stringify(val2)}</div>
+        <Slider defaultValue={50} step={25} value={val2} onChange={setVal2} />
+      </div>
+    </div>
+  );
+};
+
+// ─── Custom Min/Max ──────────────────────────────────────
+
+const CustomRangeStory = () => {
+  const [temp, setTemp] = useState<number | number[]>(22);
+  const [year, setYear] = useState<number | number[]>(2020);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+      <div>
+        <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
+          Temperature: {JSON.stringify(temp)}°C (min=-10, max=40)
+        </div>
+        <Slider min={-10} max={40} step={1} value={temp} onChange={setTemp} />
+      </div>
+      <div>
+        <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
+          Year: {JSON.stringify(year)} (min=2000, max=2030, step=1)
+        </div>
+        <Slider min={2000} max={2030} step={1} value={year} onChange={setYear} />
+      </div>
+    </div>
   );
 };
 
@@ -71,6 +129,8 @@ export const Range: StoryObj = { name: 'Range', render: () => <RangeStory /> };
 export const Disabled: StoryObj = { name: 'Disabled', render: () => <DisabledStory /> };
 export const Vertical: StoryObj = { name: 'Vertical', render: () => <VerticalStory /> };
 export const Controlled: StoryObj = { name: 'Controlled', render: () => <ControlledStory /> };
+export const CustomStep: StoryObj = { name: 'Custom Step', render: () => <CustomStepStory /> };
+export const CustomRange: StoryObj = { name: 'Custom Min/Max', render: () => <CustomRangeStory /> };
 
 export const Playground: StoryObj = {
   name: 'Playground',
