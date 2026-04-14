@@ -1,5 +1,7 @@
 import React, { forwardRef, useCallback, useRef, useState } from 'react';
 
+import { cancelEvent } from '@thanh-libs/utils';
+
 import { clamp } from '../helpers';
 import { useSliderKeyboard } from '../hooks';
 import type { SliderProps } from '../models';
@@ -74,7 +76,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
 
     const handlePointerDown = (e: React.PointerEvent) => {
       if (disabled) return;
-      e.preventDefault();
+      cancelEvent(e);
       if (containerRef.current && e.pointerId !== undefined) {
         containerRef.current.setPointerCapture(e.pointerId);
       }

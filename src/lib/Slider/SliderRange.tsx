@@ -1,5 +1,7 @@
 import React, { forwardRef, useCallback, useRef, useState } from 'react';
 
+import { cancelEvent } from '@thanh-libs/utils';
+
 import { clamp } from '../helpers';
 import { useSliderKeyboard } from '../hooks';
 import type { SliderRangeProps } from '../models';
@@ -74,7 +76,7 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
 
     const handlePointerDown = (e: React.PointerEvent) => {
       if (disabled || !value) return;
-      e.preventDefault();
+      cancelEvent(e);
       if (containerRef.current && e.pointerId !== undefined) {
         containerRef.current.setPointerCapture(e.pointerId);
       }

@@ -1,3 +1,5 @@
+import { cancelEvent } from '@thanh-libs/utils';
+
 import { clamp } from '../helpers';
 
 interface SliderKeyboardActionOptions {
@@ -42,7 +44,7 @@ export function useSliderKeyboard({
 
     const action = KEY_ACTIONS?.[e.key as keyof typeof KEY_ACTIONS];
     if (!action) return;
-    e.preventDefault();
+    cancelEvent(e);
     const newValue = action({ val: currentValue, step, min, max });
 
     if (newValue !== currentValue) onValueChange(newValue);
