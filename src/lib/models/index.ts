@@ -33,3 +33,10 @@ export interface SliderRangeProps extends SliderBaseProps {
   /** Callback fired when the value changes. */
   onChange?: (value: [number, number]) => void;
 }
+
+export interface SliderKeyboardActionOptions {
+  val: number;
+  step: number;
+  min: number;
+  max: number;
+}
