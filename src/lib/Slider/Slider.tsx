@@ -161,7 +161,9 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
       if (containerRef.current && e.pointerId !== undefined) {
         try {
           containerRef.current.releasePointerCapture(e.pointerId);
-        } catch (err) {}
+        } catch (err) {
+          console.error(err);
+        }
       }
     }, []);
 
