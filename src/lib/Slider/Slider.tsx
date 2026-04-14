@@ -3,7 +3,7 @@ import React, { forwardRef, useCallback, useRef, useState } from 'react';
 import { cancelEvent } from '@thanh-libs/utils';
 
 import { clamp } from '../helpers';
-import { useSliderKeyboard } from '../hooks';
+import { useSliderKeyboard, useSliderPointerValue } from '../hooks';
 import type { SliderProps } from '../models';
 
 import {
@@ -52,27 +52,13 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
       [isControlled, onChange],
     );
 
-    const getValueFromPointer = useCallback(
-      (e: PointerEvent | React.PointerEvent) => {
-        if (!containerRef.current) return min;
-        const rect = containerRef.current.getBoundingClientRect();
-        let percent = 0;
-
-        const clientX = e.clientX || 0;
-        const clientY = e.clientY || 0;
-
-        if (orientation === 'horizontal') {
-          percent = (clientX - rect.left) / (rect.width || 1);
-        } else {
-          percent = (rect.bottom - clientY) / (rect.height || 1);
-        }
-
-        const exactValue = percent * (max - min) + min;
-        const steppedValue = Math.round((exactValue - min) / step) * step + min;
-        return clamp(steppedValue, min, max);
-      },
-      [min, max, step, orientation],
-    );
+    const { getValueFromPointer } = useSliderPointerValue({
+      containerRef,
+      min,
+      max,
+      step,
+      orientation,
+    });
 
     const handlePointerDown = (e: React.PointerEvent) => {
       if (disabled) return;

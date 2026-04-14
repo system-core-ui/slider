@@ -2,9 +2,9 @@ import React, { forwardRef, useCallback, useRef, useState } from 'react';
 
 import { cancelEvent } from '@thanh-libs/utils';
 
-import { clamp } from '../helpers';
-import { useSliderKeyboard } from '../hooks';
 import type { SliderRangeProps } from '../models';
+
+import { clamp } from '../helpers';
 
 import {
   SliderRailStyled,
@@ -12,6 +12,8 @@ import {
   SliderThumbStyled,
   SliderTrackStyled,
 } from './styled';
+
+import { useSliderKeyboard, useSliderPointerValue } from '../hooks';
 
 export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
   (
@@ -33,7 +35,11 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
   ) => {
     const isControlled = valueProp !== undefined;
     const [internalValue, setInternalValue] = useState<[number, number]>(
-      defaultValue !== undefined ? defaultValue : valueProp !== undefined ? valueProp : [min, max]
+      defaultValue !== undefined
+        ? defaultValue
+        : valueProp !== undefined
+          ? valueProp
+          : [min, max],
     );
 
     const value = isControlled ? valueProp : internalValue;
@@ -52,27 +58,13 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
       [isControlled, onChange],
     );
 
-    const getValueFromPointer = useCallback(
-      (e: PointerEvent | React.PointerEvent) => {
-        if (!containerRef.current) return min;
-        const rect = containerRef.current.getBoundingClientRect();
-        let percent = 0;
-
-        const clientX = e.clientX || 0;
-        const clientY = e.clientY || 0;
-
-        if (orientation === 'horizontal') {
-          percent = (clientX - rect.left) / (rect.width || 1);
-        } else {
-          percent = (rect.bottom - clientY) / (rect.height || 1);
-        }
-
-        const exactValue = percent * (max - min) + min;
-        const steppedValue = Math.round((exactValue - min) / step) * step + min;
-        return clamp(steppedValue, min, max);
-      },
-      [min, max, step, orientation],
-    );
+    const { getValueFromPointer } = useSliderPointerValue({
+      containerRef,
+      min,
+      max,
+      step,
+      orientation,
+    });
 
     const handlePointerDown = (e: React.PointerEvent) => {
       if (disabled || !value) return;
@@ -92,7 +84,7 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
       }
 
       setActiveThumb(activeIdx);
-      const newValue: [number, number] = [...value] as [number, number];
+      const newValue: [number, number] = [...value];
       newValue[activeIdx] = pointerValue;
       handleValueChange(newValue);
       thumbRefs.current[activeIdx]?.focus();
@@ -103,8 +95,8 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
         if (disabled || activeThumb === null || !value) return;
 
         const pointerValue = getValueFromPointer(e);
-        const newValue: [number, number] = [...value] as [number, number];
-        
+        const newValue: [number, number] = [...value];
+
         let currentActive = activeThumb;
 
         if (newValue[0] === newValue[1]) {
@@ -122,10 +114,18 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
         } else {
           newValue[1] = clamp(pointerValue, newValue[0], max);
         }
-        
+
         handleValueChange(newValue);
       },
-      [disabled, activeThumb, getValueFromPointer, value, min, max, handleValueChange],
+      [
+        disabled,
+        activeThumb,
+        getValueFromPointer,
+        value,
+        min,
+        max,
+        handleValueChange,
+      ],
     );
 
     const handlePointerUp = useCallback((e: React.PointerEvent) => {
@@ -173,7 +173,11 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
           aria-valuemin={min}
           aria-valuemax={max}
           aria-valuenow={val}
-          aria-label={ariaLabel ? `${ariaLabel} ${index === 0 ? 'min' : 'max'}` : undefined}
+          aria-label={
+            ariaLabel
+              ? `${ariaLabel} ${index === 0 ? 'min' : 'max'}`
+              : undefined
+          }
           aria-labelledby={ariaLabelledby}
           aria-valuetext={ariaValuetext}
           aria-disabled={disabled}
@@ -188,11 +192,10 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
       const [val0, val1] = value;
       const p0 = getPercent(val0);
       const p1 = getPercent(val1);
-      if (orientation === 'horizontal') {
-        trackStyle = { left: `${p0}%`, width: `${p1 - p0}%` };
-      } else {
-        trackStyle = { bottom: `${p0}%`, height: `${p1 - p0}%` };
-      }
+      trackStyle =
+        orientation === 'horizontal'
+          ? { left: `${p0}%`, width: `${p1 - p0}%` }
+          : { bottom: `${p0}%`, height: `${p1 - p0}%` };
     }
 
     return (
