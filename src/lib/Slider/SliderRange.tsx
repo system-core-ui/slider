@@ -1,6 +1,7 @@
 import React, { forwardRef, useCallback, useRef, useState } from 'react';
 
 import { clamp } from '../helpers';
+import { useSliderKeyboard } from '../hooks';
 import type { SliderRangeProps } from '../models';
 
 import {
@@ -134,34 +135,18 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
 
     const getPercent = (val: number) => ((val - min) / (max - min)) * 100;
 
+    const handleKeyDownHelper = useSliderKeyboard({ min, max, step, disabled });
+
     const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
-      if (disabled || !value) return;
-
-      const currentValue = value[index];
-
-      const actionMap: Record<string, () => number> = {
-        ArrowLeft: () => clamp(currentValue - step, min, max),
-        ArrowDown: () => clamp(currentValue - step, min, max),
-        ArrowRight: () => clamp(currentValue + step, min, max),
-        ArrowUp: () => clamp(currentValue + step, min, max),
-        Home: () => min,
-        End: () => max,
-      };
-
-      const action = actionMap[e.key];
-      if (action) {
-        e.preventDefault();
-        const newValueStr = action();
-
-        if (newValueStr !== currentValue) {
-          const newArray: [number, number] = [...value] as [number, number];
-          newArray[index] = newValueStr;
-          if (newArray[0] > newArray[1]) {
-            newArray[index] = index === 0 ? newArray[1] : newArray[0];
-          }
-          handleValueChange(newArray);
+      if (!value) return;
+      handleKeyDownHelper(e, value[index], (newValueStr) => {
+        const newArray: [number, number] = [...value] as [number, number];
+        newArray[index] = newValueStr;
+        if (newArray[0] > newArray[1]) {
+          newArray[index] = index === 0 ? newArray[1] : newArray[0];
         }
-      }
+        handleValueChange(newArray);
+      });
     };
 
     const renderThumb = (val: number, index: number) => {

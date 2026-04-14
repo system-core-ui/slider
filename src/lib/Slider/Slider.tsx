@@ -1,6 +1,7 @@
 import React, { forwardRef, useCallback, useRef, useState } from 'react';
 
 import { clamp } from '../helpers';
+import { useSliderKeyboard } from '../hooks';
 import type { SliderProps } from '../models';
 
 import {
@@ -103,24 +104,11 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
 
     const getPercent = (val: number) => ((val - min) / (max - min)) * 100;
 
+    const handleKeyDownHelper = useSliderKeyboard({ min, max, step, disabled });
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (disabled || value === undefined) return;
-
-      const actionMap: Record<string, () => number> = {
-        ArrowLeft: () => clamp(value - step, min, max),
-        ArrowDown: () => clamp(value - step, min, max),
-        ArrowRight: () => clamp(value + step, min, max),
-        ArrowUp: () => clamp(value + step, min, max),
-        Home: () => min,
-        End: () => max,
-      };
-
-      const action = actionMap[e.key];
-      if (action) {
-        e.preventDefault();
-        const newValue = action();
-        if (newValue !== value) handleValueChange(newValue);
-      }
+      if (value === undefined) return;
+      handleKeyDownHelper(e, value, handleValueChange);
     };
 
     const renderThumb = (val: number) => {
