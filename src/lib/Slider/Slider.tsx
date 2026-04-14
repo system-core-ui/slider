@@ -2,7 +2,7 @@ import React, { forwardRef, useCallback, useRef, useState } from 'react';
 
 import { cancelEvent } from '@thanh-libs/utils';
 
-import { clamp } from '../helpers';
+import { clamp, getPercent } from '../helpers';
 import { useSliderKeyboard, useSliderPointerValue } from '../hooks';
 import type { SliderProps } from '../models';
 
@@ -90,8 +90,6 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
       }
     }, []);
 
-    const getPercent = (val: number) => ((val - min) / (max - min)) * 100;
-
     const handleKeyDownHelper = useSliderKeyboard({ min, max, step, disabled });
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -100,7 +98,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
     };
 
     const renderThumb = (val: number) => {
-      const percent = getPercent(val);
+      const percent = getPercent(val, min, max);
       const style =
         orientation === 'horizontal'
           ? { left: `${percent}%` }
@@ -128,7 +126,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
       );
     };
 
-    const p = getPercent(value as number);
+    const p = getPercent(value as number, min, max);
     let trackStyle = {};
     if (orientation === 'horizontal') {
       trackStyle = { left: '0%', width: `${p}%` };

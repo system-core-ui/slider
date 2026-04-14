@@ -4,7 +4,7 @@ import { cancelEvent } from '@thanh-libs/utils';
 
 import type { SliderRangeProps } from '../models';
 
-import { clamp } from '../helpers';
+import { clamp, getPercent } from '../helpers';
 
 import {
   SliderRailStyled,
@@ -135,8 +135,6 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
       }
     }, []);
 
-    const getPercent = (val: number) => ((val - min) / (max - min)) * 100;
-
     const handleKeyDownHelper = useSliderKeyboard({ min, max, step, disabled });
 
     const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
@@ -152,7 +150,7 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
     };
 
     const renderThumb = (val: number, index: number) => {
-      const percent = getPercent(val);
+      const percent = getPercent(val, min, max);
       const style =
         orientation === 'horizontal'
           ? { left: `${percent}%` }
@@ -190,8 +188,8 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
     let trackStyle = {};
     if (value) {
       const [val0, val1] = value;
-      const p0 = getPercent(val0);
-      const p1 = getPercent(val1);
+      const p0 = getPercent(val0, min, max);
+      const p1 = getPercent(val1, min, max);
       trackStyle =
         orientation === 'horizontal'
           ? { left: `${p0}%`, width: `${p1 - p0}%` }
