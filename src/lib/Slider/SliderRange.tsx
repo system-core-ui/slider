@@ -110,9 +110,9 @@ export const SliderRange = forwardRef<HTMLDivElement, SliderRangeProps>(
         }
 
         if (currentActive === 0) {
-          newValue[0] = clamp(pointerValue, min, newValue[1]);
+          newValue[0] = clamp({ val: pointerValue, min, max: newValue[1] });
         } else {
-          newValue[1] = clamp(pointerValue, newValue[0], max);
+          newValue[1] = clamp({ val: pointerValue, min: newValue[0], max });
         }
 
         handleValueChange(newValue);
