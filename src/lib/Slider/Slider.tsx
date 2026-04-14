@@ -45,7 +45,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
     const isRange = Array.isArray(value);
 
     const [activeThumb, setActiveThumb] = useState<number | null>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement | null>(null);
     const thumbRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     const handleValueChange = useCallback(
@@ -268,7 +268,6 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(
         ref={(node) => {
           if (typeof ref === 'function') ref(node);
           else if (ref) ref.current = node;
-          // @ts-expect-error
           containerRef.current = node;
         }}
         ownerOrientation={orientation}
